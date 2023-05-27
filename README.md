@@ -11,7 +11,7 @@ WhatsApp Gateway
     
 ## Run
     npm run start
-    Start to scan the QR Code
+Start to scan the QR Code
     
 ## Postman
 ### Send Message

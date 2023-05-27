@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp Gateway</title>
+
+  <!-- Include Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Custom CSS (if any) -->
+  <style>
+    /* Add your custom styles here */
+  </style>
+</head>
+
+<body>
+  <div>
+
+    <!-- Section: Design Block -->
+    <section class="mb-10">
+      <div class="px-6 py-12 md:px-12 text-gray-800 text-center lg:text-left">
+        <div class="container mx-auto xl:px-32">
+          <div class="grid lg:grid-cols-2 flex items-center">
+            <div class="md:mt-12 lg:mt-0 mb-12 lg:mb-0">
+              <div class="block rounded-lg shadow-lg px-6 py-12 md:px-12 lg:-mr-14" style="background: hsla(0, 0%, 100%, 0.55); backdrop-filter: blur(30px);">
+                <div class="mb-12 mb-12 grid grid-cols-3 gap-2">
+                  <div>
+                    <a class="block text-center px-4 py-2 mb-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-red-500 hover:bg-red-400 transition duration-150 ease-in-out" id="logout-btn" href="#!" onclick="logoutQR()">Logout</a>
+                    <button type="button" id="checking" class="block inline-flex text-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-indigo-500 hover:bg-indigo-400 transition ease-in-out duration-150 cursor-not-allowed" disabled="">
+                      <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Checking Server...
+                    </button>
+                    <p id="status" class="text-sm"></p>
+                  </div>
+                  <div class="col-span-2">
+                    <div id="image-status">
+                      <img
+                        src="assets/images/scan.png"
+                        class="w-full rounded-lg shadow-lg inline-block"
+                        alt=""
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="md:mb-12 lg:mb-0">
+              <img
+                src="assets/images/banner.png"
+                class="w-full rounded-lg shadow-lg"
+                alt=""
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Section: Design Block -->
+
+    <section class="mb-10">
+      <div class="px-6 py-12 md:px-12 text-gray-800 text-center lg:text-left">
+        <div class="container mx-auto xl:px-32">
+          <div class="grid lg:grid-cols-2 flex items-center">
+            <div class="w-full">
+              <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" method="POST" action="http://localhost:3000/send-message" id="form_send">
+                <h2 class="text-xl font-bold mb-4">Send Message:</h2>
+                <div class="mb-4">
+                  <label class="block text-gray-700 text-sm mb-2" for="target">
+                    Target Number
+                  </label>
+                  <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="target" type="text" placeholder="62xxxxxxxxxx" name="whatsapp">
+                </div>
+                <div class="mb-6">
+                  <label class="block text-gray-700 text-sm mb-2" for="password">
+                    Message
+                  </label>
+                  <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" placeholder="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." rows="4" name="message"></textarea>
+                </div>
+                <div class="flex items-center justify-between">
+                  <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                    Send Message
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <!-- Container for demo purpose -->
+
+  <!-- Optional JavaScript (if any) -->
+  <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+  <script src="node_modules/socket.io/client-dist/socket.io.min.js"></script>
+  <script>
+    $('#logout-btn').hide();
+    // var socket = io();
+    var socket = io('http://localhost:3000', {
+        cors: {
+          origin: "*"
+        },
+        transports: ['websocket',
+            'polling',
+            'flashsocket'
+        ]
+    });
+    // start to check whatsapp gateway
+    socket.emit('create-session', {
+      // you can add number here to create multi sessions / devices and store it in , ex: numberId: 62821xxxxxx
+      start: true
+    });
+
+    socket.on('qr', function(src) {
+      $('#image-status').html(`<img src="` + src.src + `" alt="qrcode" id="qrcode" class="w-full rounded-lg shadow-lg">`);
+    });
+
+    // ketika terhubung
+    socket.on('authenticated', function(src) {
+      let nomor = src.data.id.replace(/\D/g, '');
+      nomor = nomor.slice(0, -2);
+      $('#image-status').html('<img src="assets/images/authenticated.png" class="w-full rounded-lg shadow-lg" alt="authenticated">');
+      $('#status').html(`Connected number: ${nomor}`);
+      $('#checking').hide();
+      $('#logout-btn').show();
+    });
+
+    // logout function. it will automatically remove from your whatsapp too
+    function logoutQR() {
+      socket.emit('logout', {
+          logout: true
+      });
+      $('#status').html('Device Logout');
+    }
+
+    // check if the session has been deleted
+    socket.on('isdelete', function(src) {
+      $('#status').html(src.message);
+      $('#image-status').html('<img src="assets/images/scan.png" class="w-full rounded-lg shadow-lg" alt="scan-qr">');
+      $('#checking').show();
+    });
+
+    socket.on('close', function(src) {
+      $('#status').html(src.message);
+      $('#image-status').html('<img src="assets/images/scan.png" class="w-full rounded-lg shadow-lg" alt="scan-qr">');
+      $('#checking').show();
+    })
+
+    // default ajax process
+    function ajax_process(post_url, request_method, form_data) {
+      $.ajax({
+        url: post_url,
+        type: request_method,
+        data: JSON.stringify(form_data),
+        processData: false,
+        contentType: false,
+        dataType: "json",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        beforeSend: function () {
+          // add loading
+        },
+        success: function (result) {
+          if (result.success) {
+              alert('Success: ' + result.message);
+          } else {
+              alert('Unknown Error: ' + result.message);
+          }
+        }
+      }).fail(function (xhr, ajaxOptions, thrownError) {
+          alert('Response Failed!' + xhr.status + ' : ' + xhr.statusText);
+      }).always(function () {
+        // remove loading
+      });
+    }
+    // form update
+    $("#form_send").submit(function (event) {
+        // prevent default action
+        event.preventDefault();
+        // get form action url
+        var post_url = $(this).attr("action");
+        // get form GET/POST method
+        var request_method = $(this).attr("method");
+        // Encode form elements for submission
+        var form_data = new FormData(this);
+        const json = {};
+        for (let [key, value] of form_data.entries()) {
+          json[key] = value;
+        }
+        // process
+        ajax_process(post_url, request_method, json);
+        /*
+         * or you can use socket io to send messages instead of using ajax
+         */
+        // socket.emit('send-message', {
+        //   whatsapp: form_data.get('whatsapp'), 
+        //   message: form_data.get('message')
+        // });
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,35 @@
+{
+  "name": "wa-bot",
+  "version": "1.0.0",
+  "description": "WhatsApp Bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.ts"
+  },
+  "author": "Hendrik",
+  "license": "ISC",
+  "dependencies": {
+    "@adiwajshing/baileys": "^5.0.0",
+    "@types/express": "^4.17.17",
+    "@types/qr-image": "^3.2.5",
+    "@whiskeysockets/baileys": "^6.0.0",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "fs": "^0.0.1-security",
+    "qr-image": "^3.2.0",
+    "qrcode": "^1.5.3",
+    "qrcode-terminal": "^0.12.0",
+    "socket.io": "^4.6.1",
+    "ts-node": "^10.9.1"
+  },
+  "nodemonconfig": {
+    "ignore": [
+      "auth/*",
+      "session/*"
+    ]
+  },
+  "devDependencies": {
+    "@types/qrcode": "^1.5.0"
+  }
+}

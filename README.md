@@ -2,10 +2,6 @@
 WhatsApp Gateway
 
 # Let's start
-## Clone Repo and install packages
-    git clone https://github.com/hendrik3ka/WA-gateway
-    cd main / root folder
-    npm install
 
 ## Clone Repo and install packages
     git clone https://github.com/hendrik3ka/WA-gateway

@@ -20,7 +20,9 @@ WhatsApp Gateway
 ## Postman
 ### Send Message
 POST /send-message
+
 localhost:3000/send-message
+
 **Body** *raw (json)*
 ```
 {
